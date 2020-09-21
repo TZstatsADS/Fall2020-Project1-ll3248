@@ -1,0 +1,117 @@
+---
+title: "Project 1: Will 2020 be a Repeat of 2016? A Comparison between What Is Obvious and What is Not"
+author: "Levi Lee"
+date: "9/18/2020"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r read in data, message = F, include=FALSE}
+library(haven)
+
+anes_pilot_2016 <- read_sav("../data/anes_pilot_2016.sav")
+anes_pilot_2018 <- read_sav("../data/anes_pilot_2018.sav")
+anes_pilot_2019 <- read_sav("../data/anes_pilot_2019.sav")
+anes_pilot_2020 <- read_sav("../data/anes_pilot_2020ets_sav.SAV")
+```
+
+
+```{r, include = FALSE}
+# Filtered Datasets
+
+# 5 Variables 
+anes_pilot_2016_poi <- anes_pilot_2016[, c("state", "pid3", "fttrump", "fthrc", "vote16dt")]
+anes_pilot_2020_poi <- anes_pilot_2020[, c("state", "pid1r", "fttrump1", "ftbiden1", "vote20jb")]
+```
+
+## A Lesson Learned
+
+The United States 2016 election was a perfect example of what can happen when surveys and polls go awry. Democratic candidate Hillary Clinton was leading the polls, but only slightly so in many key states. The actual election show that made of these states ended up voting in then-Republican candidate Donald Trump's favor. 
+
+## A Sense of Deja-vu
+
+We now know to take this kind of voting data with a grain of salt. In fact, as we compare the 2020 and 2016 pilot studies from American Nation Election Studies (ANES), we see a similar story. 
+
+```{r}
+par(mfrow = c(2, 2))
+barplot(prop.table(table(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Trump - 2016", col = "red") 
+
+barplot(prop.table(table(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Trump - 2020", col = "red")
+
+barplot(prop.table(table(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Clinton - 2016", col = "blue")
+
+barplot(prop.table(table(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Biden - 2020", col = "blue")
+
+mean(na.omit(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101]))
+mean(na.omit(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101]))
+
+mean(na.omit(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101]))
+mean(na.omit(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101]))
+```
+
+  Using the notion of feeling thermometers developed by ANES, the barplots above reflect the full range of respondents' feelings toward the Republican and Democratic candidates of 2016 and 2020--Donald Trump (R-2016, R-2020), Hillary Clinton (D-2016), and Joe Biden (D-2020). These feelings are in the form of a temperature ranging from 0 to 100, where 0 degrees indicates a very cold or unfavorable feeling, 100 degrees indicates a warm or favorable feeling, and 50 degrees indicates no opinion at all. 
+
+  In 2016, we see mainly opposition to both candidates, but Clinton was ahead with an average of `r mean(na.omit(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101]))` degrees compared to Trump's average of `r mean(na.omit(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101]))` degrees. 
+
+What about 2020? Trump's 2020 barplot, while more polarized, looks strikingly similar to the one in 2016. Meanwhile, Biden's plot, while a lot more netural compared to Clinton in 2016, still has both major opposition among its respondents. The numbers are similar as well--Biden is leading with a `r mean(na.omit(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101]))` degree average compared to Trump's `r mean(na.omit(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101]))`
+
+
+# Hypotheticals for US
+
+```{r}
+par(mfrow = c(1, 2))
+barplot(prop.table(table(anes_pilot_2016$vote16dt)))
+barplot(prop.table(table(anes_pilot_2020$vote20jb[anes_pilot_2020$vote20jb != 9])))
+```
+
+# COVID-19 and Healthcare
+
+```{r, include = FALSE}
+par(mfrow = c(1, 2))
+
+barplot(table(anes_pilot_2020$covidpres7[which(anes_pilot_2020$covidpres7 != 88)]))
+barplot(table(anes_pilot_2020$healthcarepres7[(anes_pilot_2020$healthcarepres7 != 77) & (anes_pilot_2020$healthcarepres7 != 99)]))
+```
+
+# Black Lives Matter
+
+Compare 2016 Black's impression with Trump with 2020's Black's impression of Trump
+
+(Hispanic opinion and Asian)
+
+# ???
+
+Swing State - Florida 
+
+## A Sense of Optimism 
+
+Regardless of which candidate people want to vote for, the optimism mentioned in the subheading is referring to one's ability to trust in the data. Dismissing this data because of the outcome of 2016 is not only rash and misleading but very dangerous. It takes away the very power that Americans have the right to exercise to make changes in ways that matter to them. 
+
+## A Disclaimer - Notions of Bias 
+
+Polling data and surveys remain an important part of the election process and serves as a way to inform the public. However, like most non-experimental data, it can difficult to draw concrete conclusions and generalize to a population due to to many different types of biases. We note some below. 
+
+Historical 
+
+Sample bias
+
+Convenience bias
+
+Response bias
