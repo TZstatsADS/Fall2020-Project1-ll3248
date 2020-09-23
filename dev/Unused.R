@@ -25,6 +25,223 @@ anes_pilot_2019 <- read_sav("../data/anes_pilot_2019.sav")
 anes_pilot_2020 <- read_sav("../data/anes_pilot_2020ets_sav.SAV")
 ```
 
+# Subsetted Datasets
+# Five variables for 2016
+# Five of the same variables for 2020 plus 2 variables unique to 2020
+
+anes_pilot_2016_poi <- anes_pilot_2016[, c("state", "race", "pid3", "fttrump", "fthrc", "vote16dt")]
+anes_pilot_2020_poi <- anes_pilot_2020[, c("state", "race7", "pid1r", "fttrump1", "ftbiden1", "vote20jb", "covidpres7", "healthcarepres7")]
+
+# Final Plots baser and ggplot2
+
+```{r, echo = FALSE}
+par(mfrow = c(2, 2))
+barplot(prop.table(table(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Trump - 2016", col = "red") 
+
+barplot(prop.table(table(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Trump - 2020", col = "red")
+
+barplot(prop.table(table(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Clinton - 2016", col = "blue")
+
+barplot(prop.table(table(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Biden - 2020", col = "blue")
+
+
+ggplot(data = anes_pilot_2016_poi) + 
+  geom_bar(mapping = aes(x = fttrump, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-1, 101) + ylim(0, 0.3) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2016",) + theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = anes_pilot_2020_poi) + 
+  geom_bar(mapping = aes(x = fttrump1, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-1, 101) + ylim(0, 0.3) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2020",) + theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = anes_pilot_2016_poi) + 
+  geom_bar(mapping = aes(x = fthrc, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.3) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Clinton - 2016",) + theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = anes_pilot_2020_poi) + 
+  geom_bar(mapping = aes(x = ftbiden1, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.3) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Biden - 2020",) + theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(trump2016, trump2020, clinton2016, biden2020, ncol = 2, nrow = 2)
+```
+
+
+```{r, echo = FALSE, fig.height = 4, warning = FALSE}
+par(mfrow = c(1, 2))
+barplot(prop.table(table(anes_pilot_2016_poi$vote16dt)))
+barplot(prop.table(table(anes_pilot_2020_poi$vote20jb[anes_pilot_2020$vote20jb != 9])))
+
+election2016 <- ggplot(data = anes_pilot_2016_poi) + 
+  geom_bar(mapping = aes(x = vote16dt, y = ..prop.., group = 1), stat = "count") + 
+  ylim(0, 0.5) + 
+  xlab("Candidate") + ylab("Proportion") + 
+  ggtitle("2016 Election Choice",) + theme(plot.title = element_text(hjust = 0.5))
+
+election2020 <- ggplot(data = anes_pilot_2020_poi[anes_pilot_2020_poi$vote20jb != 9,] ) + 
+  geom_bar(mapping = aes(x = vote20jb, y = ..prop.., group = 1), stat = "count") + 
+  ylim(0, 0.5) + 
+  xlab("Candidate") + ylab("Proportion") + 
+  ggtitle("2020 Election Choice",) + theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(election2016, election2020, ncol = 2, nrow = 1)
+```
+
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+
+barplot(table(anes_pilot_2020_poi$covidpres7[which(anes_pilot_2020_poi$covidpres7 != 88)]))
+
+barplot(table(anes_pilot_2020_poi$healthcarepres7[(anes_pilot_2020_poi$healthcarepres7 != 77) & (anes_pilot_2020_poi$healthcarepres7 != 99)]))
+
+covid2020 <- ggplot(data = anes_pilot_2020_poi[which(anes_pilot_2020_poi$covidpres7 != 88),]) + 
+  geom_bar(mapping = aes(x = covidpres7, y = ..prop.., group = 1), stat = "count") + 
+  ylim(0, 0.5) + 
+  xlab("Rating") + ylab("Proportion") + 
+  ggtitle("Trump + COVID-19 Ratings",) + theme(plot.title = element_text(hjust = 0.5))
+
+healthcare2020 <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$healthcarepres7 != 77) & 
+                                                      (anes_pilot_2020_poi$healthcarepres7 != 99), ]) + 
+  geom_bar(mapping = aes(x = healthcarepres7, y = ..prop.., group = 1), stat = "count") + 
+  ylim(0, 0.5) + 
+  xlab("Rating") + ylab("Proportion") + 
+  ggtitle("Trump + COVID-19 Ratings",) + theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(election2016, election2020, ncol = 2, nrow = 1)
+
+```
+
+
+```{r, echo = FALSE}
+par(mfrow = c(2, 2))
+barplot(prop.table(table(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 4)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Trump - 2016", col = "red") 
+
+barplot(prop.table(table(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 3)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Trump - 2020", col = "red")
+
+barplot(prop.table(table(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016_poi$race == 4)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Clinton - 2016", col = "blue")
+
+barplot(prop.table(table(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 3)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Biden - 2020", col = "blue")
+
+
+
+trump2016_asian <- ggplot(data = anes_pilot_2016_poi[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 4), ]) + 
+  geom_bar(mapping = aes(x = fttrump, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-1, 101) + ylim(0, 0.4) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2016",) + theme(plot.title = element_text(hjust = 0.5))
+
+trump2020_asian <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$fttrump1 < 101) & 
+                                                       (anes_pilot_2020_poi$race7 == 3), ]) + 
+  geom_bar(mapping = aes(x = fttrump1, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-5, 101) + ylim(0, 0.4) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2020",) + theme(plot.title = element_text(hjust = 0.5))
+
+clinton2016_asian <- ggplot(data = anes_pilot_2016_poi[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016_poi$race == 4), ]) + 
+  geom_bar(mapping = aes(x = fthrc, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.4) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Clinton - 2016",) + theme(plot.title = element_text(hjust = 0.5))
+
+biden2020_asian <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 3), ]) + 
+  geom_bar(mapping = aes(x = ftbiden1, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.4) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Biden - 2020",) + theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(trump2016_asian, trump2020_asian, clinton2016_asian, biden2020_asian, ncol = 2, nrow = 2)
+```
+
+`
+```{r, echo = FALSE}
+par(mfrow = c(2, 2))
+barplot(prop.table(table(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 2)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Trump - 2016", col = "red") 
+
+barplot(prop.table(table(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Trump - 2020", col = "red")
+
+barplot(prop.table(table(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016_poi$race == 2)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Clinton - 2016", col = "blue")
+
+barplot(prop.table(table(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) &
+                                                        (anes_pilot_2020_poi$race7 == 2)])), 
+        xlab = "Temperature", ylab = "Proportion", 
+        main = "Biden - 2020", col = "blue")
+
+trump2016_black <- ggplot(data = anes_pilot_2016_poi[(anes_pilot_2016_poi$fttrump < 101) &
+                                                       (anes_pilot_2016_poi$race == 2), ]) + 
+  geom_bar(mapping = aes(x = fttrump, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-1, 101) + ylim(0, 0.5) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2016 (Black)",) + theme(plot.title = element_text(hjust = 0.5))
+
+trump2020_black <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$fttrump1 < 101) & 
+                                                       (anes_pilot_2020_poi$race7 == 2), ]) + 
+  geom_bar(mapping = aes(x = fttrump1, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-5, 101) + ylim(0, 0.5) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2020 (Black)",) + theme(plot.title = element_text(hjust = 0.5))
+
+clinton2016_black <- ggplot(data = anes_pilot_2016_poi[(anes_pilot_2016_poi$fthrc < 101) &
+                                                         (anes_pilot_2016_poi$race == 2), ]) + 
+  geom_bar(mapping = aes(x = fthrc, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.5) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Clinton - 2016 (Black)",) + theme(plot.title = element_text(hjust = 0.5))
+
+biden2020_black <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$ftbiden1 < 101) &
+                                                       (anes_pilot_2020_poi$race7 == 2), ]) + 
+  geom_bar(mapping = aes(x = ftbiden1, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.4) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Biden - 2020 (Black)",) + theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(trump2016_black, trump2020_black, clinton2016_black, biden2020_black, ncol = 2, nrow = 2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 View(anes_dat_2008)
 View(anes_dat_2012)
 View(anes_dat_2016)
@@ -162,3 +379,54 @@ barplot(prop.table(table(anes_pilot_2019$apppres7) + c(380, 272/2, 272/2, 140, 1
 
 barplot(prop.table(table(anes_pilot_2020$apppres7[anes_pilot_2020$apppres7 != 99])))
 ```
+
+
+# One explanation for this is because, at the time, Biden has not yet become the Democratic nominee for 2020 yet and it is possible that other candidates, like Benie Sanders, would have been seen more favorably by among Blacks. 
+```{r}
+barplot(prop.table(table(anes_pilot_2020$ftsanders1[(anes_pilot_2020$ftsanders1 < 101) & (anes_pilot_2020$race7 == 2)])))
+
+mean(anes_pilot_2020$ftsanders1[(anes_pilot_2020$ftsanders1 < 101) & (anes_pilot_2020$race7 == 2)])
+```
+
+
+```{r, include = FALSE}
+round(mean(na.omit(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 2)])), 2)
+
+round(mean(na.omit(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 2)
+
+
+round(mean(na.omit(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016$race == 2)])), 2)
+
+round(mean(na.omit(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 2)
+
+
+round(mean(na.omit(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016$race == 2)])), 2) - round(mean(na.omit(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 2)])), 2)
+
+
+round(mean(na.omit(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 2) - round(mean(na.omit(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 2)
+
+```
+
+
+# US Averages 
+mean(na.omit(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101]))
+mean(na.omit(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101]))
+
+mean(na.omit(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101]))
+mean(na.omit(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101]))
+
+mean(na.omit(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101]))
+mean(na.omit(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101]))
+
+mean(na.omit(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101]))
+mean(na.omit(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101]))
+
+# Asian American Averages 
+
+
+mean(na.omit(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 4)]))
+mean(na.omit(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 3)]))
+
+
+mean(na.omit(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016_poi$race == 4)]))
+mean(na.omit(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 3)]))

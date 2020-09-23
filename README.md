@@ -9,10 +9,10 @@ This is the first and only *individual* (as opposed to *team*) this semester.
 
 Term: Fall 2020
 
-+ Projec title: Lorem ipsum dolor sit amet
-+ This project is conducted by [your name]
++ Projec title: Project 1: History on Repeat? Is 2020 looking like 2016?
++ This project is conducted by Levi Lee
 
-+ Project summary: [a short summary] Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
++ Project summary: It is very tempting to dismiss the upcoming 2020 election as a repeat of the 2016 election. Indeed, many have already. However, this project utilizes data from the American National Election Studies (ANES)'s 2016 and 2018 pilot studies to describe how they are actually very different. By analyzing events such as COVID-19 and the Black Lives Matter (BLM) movement, we actually see--with data!--that 2020's election will be far different from what one might expect. We end with a discussion about different types of biases that may not only affect the sampled data but our analyses as well.    
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 

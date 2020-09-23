@@ -1,7 +1,7 @@
 ---
-title: "Project 1: Will 2020 be a Repeat of 2016? A Comparison between What Is Obvious and What is Not"
+title: "Project 1: History on Repeat? Is 2020 looking like 2016?"
 author: "Levi Lee"
-date: "9/18/2020"
+date: "9/22/2020"
 output:
   html_document:
     df_print: paged
@@ -14,104 +14,298 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r load libraries, warning=FALSE, message = FALSE, include = FALSE}
+# Check if packages are installed
+# Install if not already done so
+
+packages.used = as.list(c("tidyverse", "haven", "devtools", 
+                          "RColorBrewer", "data.table", "ggplot2", "gridExtra"))
+
+check.pkg = function(x){
+  if(!require(x, character.only=T)) install.packages(x, character.only = T, dependence = T)
+}
+
+lapply(packages.used, check.pkg)
+```
 
 ```{r read in data, message = F, include=FALSE}
 library(haven)
 
+# Read in data
+
 anes_pilot_2016 <- read_sav("../data/anes_pilot_2016.sav")
-anes_pilot_2018 <- read_sav("../data/anes_pilot_2018.sav")
-anes_pilot_2019 <- read_sav("../data/anes_pilot_2019.sav")
 anes_pilot_2020 <- read_sav("../data/anes_pilot_2020ets_sav.SAV")
 ```
 
 
-```{r, include = FALSE}
-# Filtered Datasets
+```{r subsetting, include = FALSE}
+# Subsetted Datasets
+# Three variables for 2016
+# Five variables for 2020
 
-# 5 Variables 
-anes_pilot_2016_poi <- anes_pilot_2016[, c("state", "pid3", "fttrump", "fthrc", "vote16dt")]
-anes_pilot_2020_poi <- anes_pilot_2020[, c("state", "pid1r", "fttrump1", "ftbiden1", "vote20jb")]
+anes_pilot_2016_poi <- anes_pilot_2016[, c("race", "fttrump", "fthrc", "vote16dt")]
+anes_pilot_2020_poi <- anes_pilot_2020[, c("race7", "fttrump1", "ftbiden1", "vote20jb", "covidpres7", "healthcarepres7")]
+
+# Save Datasets
+# poi: "points of interest"
+
+save(anes_pilot_2016_poi, file = "../output/anes_pilot_2016_poi.RData")
+save(anes_pilot_2016_poi, file = "../output/anes_pilot_2020_poi.RData")
+
+load(file = "../output/anes_pilot_2016_poi.RData")
+load(file = "../output/anes_pilot_2020_poi.RData")
 ```
 
 ## A Lesson Learned
 
-The United States 2016 election was a perfect example of what can happen when surveys and polls go awry. Democratic candidate Hillary Clinton was leading the polls, but only slightly so in many key states. The actual election show that made of these states ended up voting in then-Republican candidate Donald Trump's favor. 
+  The United States 2016 election was a perfect example of what can happen when surveys and polling data go awry. Democratic candidate Hillary Clinton was leading the polls, but only slightly so in many key states. Many of these states ended up siding with Republican candidate Donald Trump in the actual election.. 
 
 ## A Sense of Deja-vu
 
 We now know to take this kind of voting data with a grain of salt. In fact, as we compare the 2020 and 2016 pilot studies from American Nation Election Studies (ANES), we see a similar story. 
 
-```{r}
-par(mfrow = c(2, 2))
-barplot(prop.table(table(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101])), 
-        xlab = "Temperature", ylab = "Proportion", 
-        main = "Trump - 2016", col = "red") 
+  Using the notion of feeling thermometers developed by ANES, the barplots above reflect the full range of respondents' feelings toward the Republican and Democratic candidates of 2016 and 2020--Donald Trump (R-2016, R-2020), Hillary Clinton (D-2016), and Joe Biden (D-2020). These feelings are in the form of a temperature ranging from 0 to 100, where 0 degrees indicates a very cold or unfavorable feeling, 100 degrees indicates a warm or favorable feeling, and 50 degrees indicates neither favorable nor unfavorable. 
+  
+```{r, echo = FALSE, warning = FALSE}
+library(ggplot2)
+library(gridExtra)
 
-barplot(prop.table(table(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101])), 
-        xlab = "Temperature", ylab = "Proportion", 
-        main = "Trump - 2020", col = "red")
+## ggplot data argument may contain subsetted datasets
+## missing data excluded from each plot
 
-barplot(prop.table(table(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101])), 
-        xlab = "Temperature", ylab = "Proportion", 
-        main = "Clinton - 2016", col = "blue")
+trump2016 <- ggplot(data = anes_pilot_2016_poi) + 
+  geom_bar(mapping = aes(x = fttrump, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-1, 101) + ylim(0, 0.3) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2016",) + theme(plot.title = element_text(hjust = 0.5))
+  
+trump2020 <- ggplot(data = anes_pilot_2020_poi) + 
+  geom_bar(mapping = aes(x = fttrump1, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-1, 101) + ylim(0, 0.3) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2020",) + theme(plot.title = element_text(hjust = 0.5))
 
-barplot(prop.table(table(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101])), 
-        xlab = "Temperature", ylab = "Proportion", 
-        main = "Biden - 2020", col = "blue")
+clinton2016 <- ggplot(data = anes_pilot_2016_poi) + 
+  geom_bar(mapping = aes(x = fthrc, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.3) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Clinton - 2016",) + theme(plot.title = element_text(hjust = 0.5))
+  
+biden2020 <- ggplot(data = anes_pilot_2020_poi) + 
+  geom_bar(mapping = aes(x = ftbiden1, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.3) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Biden - 2020",) + theme(plot.title = element_text(hjust = 0.5))
 
-mean(na.omit(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101]))
-mean(na.omit(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101]))
-
-mean(na.omit(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101]))
-mean(na.omit(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101]))
+grid.arrange(trump2016, trump2020, clinton2016, biden2020, ncol = 2, nrow = 2)
 ```
 
-  Using the notion of feeling thermometers developed by ANES, the barplots above reflect the full range of respondents' feelings toward the Republican and Democratic candidates of 2016 and 2020--Donald Trump (R-2016, R-2020), Hillary Clinton (D-2016), and Joe Biden (D-2020). These feelings are in the form of a temperature ranging from 0 to 100, where 0 degrees indicates a very cold or unfavorable feeling, 100 degrees indicates a warm or favorable feeling, and 50 degrees indicates no opinion at all. 
+```{r, echo = FALSE, include = FALSE}
+# calculated means are for noting purposes only 
+# embedded into article
 
-  In 2016, we see mainly opposition to both candidates, but Clinton was ahead with an average of `r mean(na.omit(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101]))` degrees compared to Trump's average of `r mean(na.omit(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101]))` degrees. 
+round(mean(na.omit(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101])), 2)
+round(mean(na.omit(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101])), 2)
 
-What about 2020? Trump's 2020 barplot, while more polarized, looks strikingly similar to the one in 2016. Meanwhile, Biden's plot, while a lot more netural compared to Clinton in 2016, still has both major opposition among its respondents. The numbers are similar as well--Biden is leading with a `r mean(na.omit(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101]))` degree average compared to Trump's `r mean(na.omit(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101]))`
-
-
-# Hypotheticals for US
-
-```{r}
-par(mfrow = c(1, 2))
-barplot(prop.table(table(anes_pilot_2016$vote16dt)))
-barplot(prop.table(table(anes_pilot_2020$vote20jb[anes_pilot_2020$vote20jb != 9])))
+round(mean(na.omit(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101])), 2)
+round(mean(na.omit(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101])), 2)
 ```
 
-# COVID-19 and Healthcare
 
-```{r, include = FALSE}
-par(mfrow = c(1, 2))
+  In 2016, we see mainly opposition to both candidates, but Clinton was ahead with an average of `r round(mean(na.omit(anes_pilot_2016$fthrc[anes_pilot_2016$fthrc < 101])), 2)` degrees compared to Trump's average of `r round(mean(na.omit(anes_pilot_2016$fttrump[anes_pilot_2016$fttrump < 101])), 2)` degrees. 
 
-barplot(table(anes_pilot_2020$covidpres7[which(anes_pilot_2020$covidpres7 != 88)]))
-barplot(table(anes_pilot_2020$healthcarepres7[(anes_pilot_2020$healthcarepres7 != 77) & (anes_pilot_2020$healthcarepres7 != 99)]))
+  What about 2020? Trump's 2020 barplot, while more polarized, looks similar to the one in 2016 in terms of overall shape. Meanwhile, Biden's plot, while a lot more neutral compared to Clinton in 2016, still has both major opposition among its respondents. The numbers are similar as well--Biden is leading with a `r round(mean(na.omit(anes_pilot_2020$ftbiden1[anes_pilot_2020$ftbiden1 < 101])), 2)` degree average compared to Trump's `r round(mean(na.omit(anes_pilot_2020$fttrump1[anes_pilot_2020$fttrump1 < 101])), 2)` degree average. 
+
+  The similarities seem to continue even further. From the barplots below, we see that, back on 2016, when asked *"If the 2016 presidential election were between Hillary Clinton for the Democrats and Donald Trump for the Republicans, would you vote for Hillary Clinton, Donald Trump, someone else, or probably not vote?"*, the responses showed that Clinton came up on top over Trump by a noticeable margin. Now, in 2020, when asked *"If the 2020 presidential election were between Donald Trump for the Republicans and Joe Biden for the Democrats, would you vote for Donald Trump, Joe Biden, someone else, or probably not vote?"*, the responses show that Biden comes up on top as well.  
+
+```{r, echo = FALSE, warning = FALSE}
+## ggplot data argument may contain subsetted datasets
+## missing data excluded from each plot
+
+election2016 <- ggplot(data = na.omit(anes_pilot_2016_poi)) + 
+  geom_bar(mapping = aes(x = as.factor(vote16dt), y = ..prop.., group = 1), stat = "count") + 
+  ylim(0, 0.5) + 
+  xlab("Candidate") + ylab("Proportion") + 
+  scale_x_discrete(labels = c("Clinton", "Trump", "Other", "No Vote")) + 
+  ggtitle("2016 Election Choice",) + theme(plot.title = element_text(hjust = 0.5))
+
+election2020 <- ggplot(data = na.omit(anes_pilot_2020_poi[anes_pilot_2020_poi$vote20jb != 9,] )) + 
+  geom_bar(mapping = aes(x = as.factor(vote20jb), y = ..prop.., group = 1), stat = "count") + 
+  ylim(0, 0.5) + 
+  xlab("Candidate") + ylab("Proportion") + 
+  scale_x_discrete(labels = c("Trump", "Biden", "Other", "No Vote")) + 
+  ggtitle("2020 Election Choice",) + theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(election2016, election2020, ncol = 2, nrow = 1)
 ```
 
-# Black Lives Matter
+  It is tempting to use 2016 as justification for doubting what we see in this data, and while the results of 2016 are important to keep in mind, we should be careful in jumping to conclusions. Doing so would only cause us to make the same mistake as we did in 2016. By considering current events and what is different about 2020--the good and the bad--we see that they have a significant effect on public opinion and therefore how we view this upcoming election as well. We present three different justifications below using additional public opinion data from ANES that was contained in the 2016 and 2020 pilot data studies. 
 
-Compare 2016 Black's impression with Trump with 2020's Black's impression of Trump
 
-(Hispanic opinion and Asian)
+## COVID-19
 
-# ???
+  Perhaps the most obvious difference between 2016 and 2020 is the issue of COVID-19 in the United States. While the the pandemic has not only shutdown many business and the economy, at the time of this writing, it has claimed over 200,000 lives in this country alone. And throughout the pandemic, arguments about Trump's involvement, the use of masks, symptoms, and how it spreads continue to rage on. 
 
-Swing State - Florida 
+  Responses to questions unique to ANES's 2020 Pilot Survey--*"Do you approve, disapprove, or neither approve nor disapprove of the way Donald Trump is handling the coronavirus (COVID-19) outbreak?"* and *"Do you approve, disapprove, or neither approve nor disapprove of the way Donald Trump is handling health care?"*--are shown below. 
+
+```{r, echo = FALSE}
+## ggplot data argument may contain subsetted datasets
+## missing data excluded from each plot
+
+covid2020 <- ggplot(data = anes_pilot_2020_poi[which(anes_pilot_2020_poi$covidpres7 != 88),]) + geom_bar(mapping = aes(x = as.factor(covidpres7), y = ..prop.., group = 1), stat = "count") + 
+  ylim(0, 0.35) + 
+  xlab("Rating") + ylab("Proportion") + 
+  scale_x_discrete(labels = c("1. Approve ext. str.", 
+                              "2. Approve mod. str.", 
+                              "3. Approve sli.", 
+                              "4. Neither", 
+                              "5. Disapprove sli.", 
+                              "6. Disapprove mod. str.", 
+                              "7. Disapprove ext. str.")) + 
+  ggtitle("Trump & COVID-19 Approval") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(axis.text.x = element_text(size = 8, angle = 65, hjust = 1))
+
+healthcare2020 <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$healthcarepres7 != 77) & (anes_pilot_2020_poi$healthcarepres7 != 99), ]) + 
+  geom_bar(mapping = aes(x = as.factor(healthcarepres7), y = ..prop.., group = 1), stat = "count") + 
+  ylim(0, 0.35) + 
+  xlab("Rating") + ylab("Proportion") + 
+  scale_x_discrete(labels = c("1. Approve ext. str.", 
+                              "2. Approve mod. str.", 
+                              "3. Approve sli.", 
+                              "4. Neither", 
+                              "5. Disapprove sli.", 
+                              "6. Disapprove mod. str.", 
+                              "7. Disapprove ext. str.")) + 
+  ggtitle("Trump & Healthcare Approval") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(axis.text.x = element_text(size = 8, angle = 65, hjust = 1))
+
+grid.arrange(covid2020, healthcare2020, ncol = 2, nrow = 1)
+
+```
+
+  A majority seem to believe that Trump has handled both issues rather poorly, which is not only a major factor in the political scene of 2020, but it potentially hurts his chances for re-election. 
+
+## Asian Americans in the Public Eye
+
+  Additionally, due to COVID-19 originating from China, there have been major tensions among Asian-Americans and Trump; to make matters worse, many Asians and Asian-Americans have been harassed or discriminated against as the virus spread. The president's insistence in calling the disease "the Wuhan virus" affects not only China's perspective of Trump but the United State's voting population of Trump as well--particularly Asian-Americans. 
+
+```{r, echo = FALSE, warning = FALSE}
+## ggplot data argument may contain subsetted datasets
+## missing data excluded from each plot
+
+trump2016_asian <- ggplot(data = anes_pilot_2016_poi[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 4), ]) + 
+  geom_bar(mapping = aes(x = fttrump, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-1, 101) + ylim(0, 0.35) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2016 (Asian)",) + theme(plot.title = element_text(hjust = 0.5))
+  
+trump2020_asian <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 3), ]) + 
+  geom_bar(mapping = aes(x = fttrump1, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-5, 101) + ylim(0, 0.35) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2020 (Asian)",) + theme(plot.title = element_text(hjust = 0.5))
+
+clinton2016_asian <- ggplot(data = anes_pilot_2016_poi[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016_poi$race == 4), ]) + 
+  geom_bar(mapping = aes(x = fthrc, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.35) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Clinton - 2016 (Asian)",) + theme(plot.title = element_text(hjust = 0.5))
+  
+biden2020_asian <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 3), ]) + 
+  geom_bar(mapping = aes(x = ftbiden1, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.35) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Biden - 2020 (Asian)",) + theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(trump2016_asian, trump2020_asian, clinton2016_asian, biden2020_asian, ncol = 2, nrow = 2)
+```
+
+```{r, include = FALSE, echo = FALSE}
+# calculated means are for noting purposes only 
+# embedded into article
+
+round(mean(na.omit(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 4)])), 2)
+
+round(mean(na.omit(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 3)])), 2)
+
+round(mean(na.omit(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 3)])), 2)
+
+round(mean(na.omit(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016_poi$race == 4)])), 2)
+```
+
+  Let's break down the four barplots from above and focus only on the Asian-American voters. We see opinions on Trump have been more defined much more unfavorable in 2020 compared to 2016. The average has decreased from `r round(mean(na.omit(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 4)])), 2)` degrees in 2016 to `r round(mean(na.omit(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 3)])), 2)` degrees in 2020. In 2016, about 13% of Asian-American voters sampled were extremely disapproving with Trump; that number has risen to over 30% in 2020. 
+
+  Opinions on Biden are much more middling in 2020 compared to Clinton in 2016 but both positive overall. With Biden's average of `r round(mean(na.omit(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 3)])), 2)` degrees, he is a few points ahead compared to Clinton's `r round(mean(na.omit(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016_poi$race == 4)])), 2)` degree average back in 2016. 
+
+## Black Lives Matter
+
+  In 2020, we have seen the deaths of many Black lives including George Floyd and Breonna Taylor, and opinions on police brutality and racism continue to clash among political parties and other groups. However, Black Lives Matter is not a recent movement, dating as far back as 2013, and many injustices against Black lives in the United States have been committed prior to this year. Because of this, opinions on Trump--as well as his response to the movement--continue to change. 
+
+```{r, echo = FALSE, warning = FALSE}
+## ggplot data argument may contain subsetted datasets
+## missing data excluded from each plot
+
+trump2016_black <- ggplot(data = anes_pilot_2016_poi[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 2), ]) + 
+  geom_bar(mapping = aes(x = fttrump, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-1, 101) + ylim(0, 0.5) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2016 (Black)",) + theme(plot.title = element_text(hjust = 0.5))
+  
+trump2020_black <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 2), ]) + 
+  geom_bar(mapping = aes(x = fttrump1, y = ..prop.., group = 1), stat = "count", fill = "red") +
+  xlim(-5, 101) + ylim(0, 0.5) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Trump - 2020 (Black)",) + theme(plot.title = element_text(hjust = 0.5))
+
+clinton2016_black <- ggplot(data = anes_pilot_2016_poi[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016_poi$race == 2), ]) + 
+  geom_bar(mapping = aes(x = fthrc, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.5) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Clinton - 2016 (Black)",) + theme(plot.title = element_text(hjust = 0.5))
+  
+biden2020_black <- ggplot(data = anes_pilot_2020_poi[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 2), ]) + 
+  geom_bar(mapping = aes(x = ftbiden1, y = ..prop.., group = 1), stat = "count", fill = "blue") +
+  xlim(-1, 101) + ylim(0, 0.5) + 
+  xlab("Temperature") + ylab("Proportion") + 
+  ggtitle("Biden - 2020 (Black)",) + theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(trump2016_black, trump2020_black, clinton2016_black, biden2020_black, ncol = 2, nrow = 2)
+```
+
+```{r, include = FALSE, echo = FALSE}
+# calculated means are for noting purposes only 
+# embedded into article
+
+round(mean(na.omit(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 2)])), 2)
+
+round(mean(na.omit(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 2)
+
+round(mean(na.omit(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016$race == 2)])), 2)
+
+round(mean(na.omit(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 2)
+```
+
+  Now let's break down the four barplots we introduced again, but this time, we focus on only Black voters. Within this particular group, we again see significant changes between Black voters' opinions on Trump. Overall, feelings toward Trump have become much colder, with over 40% of surveyed Black respondents saying that they are completely unfavorable with Trump compared to just under 20% in 2016. 
+
+  Overall, the average has decreased from `r round(mean(na.omit(anes_pilot_2016_poi$fttrump[(anes_pilot_2016_poi$fttrump < 101) & (anes_pilot_2016_poi$race == 2)])), 2)` to `r round(mean(na.omit(anes_pilot_2020_poi$fttrump1[(anes_pilot_2020_poi$fttrump1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 2)` degrees. It is also worth nothing that, at the time of this data, the average for Biden is `r round(mean(na.omit(anes_pilot_2016_poi$fthrc[(anes_pilot_2016_poi$fthrc < 101) & (anes_pilot_2016$race == 2)])), 2)` while Clinton in 2016 was `r round(mean(na.omit(anes_pilot_2020_poi$ftbiden1[(anes_pilot_2020_poi$ftbiden1 < 101) & (anes_pilot_2020_poi$race7 == 2)])), 2)`, which indicate moderate favorable feeling toward each candidate for their respective years. 
 
 ## A Sense of Optimism 
 
-Regardless of which candidate people want to vote for, the optimism mentioned in the subheading is referring to one's ability to trust in the data. Dismissing this data because of the outcome of 2016 is not only rash and misleading but very dangerous. It takes away the very power that Americans have the right to exercise to make changes in ways that matter to them. 
+  Regardless of which candidate people want to vote for, the optimism mentioned in the subheading is referring to one's ability to trust in the data. Dismissing this data because of the outcome of 2016 is not only rash and misleading but very dangerous. It takes away the very power that Americans have the right to exercise to make changes in ways that matter to them. 
+
+  However, data should never be analyzed without context from major current events, especially if data--such as ANES's--records public opinions on such events. This article is intended to give readers of just a few examples of how 2020 is unlike 2016, but many more can be found. However, the data is still subject to many types of biases, which we outline a few below. And even with the most updated data, only time will tell who the winner of the election will be. 
+
 
 ## A Disclaimer - Notions of Bias 
 
-Polling data and surveys remain an important part of the election process and serves as a way to inform the public. However, like most non-experimental data, it can difficult to draw concrete conclusions and generalize to a population due to to many different types of biases. We note some below. 
+  Polling and election data and surveys remain an important part of the election process and serves as a way to inform the public. However, like most non-experimental data, it can difficult to draw concrete conclusions and generalize to a population due to to many different types of biases. We note some below. 
 
-Historical 
+**Historical bias**: Data immediately becomes old the moment we record it; information continues to change and while there is no way to overcome this without getting newer data, it is important to be mindful of this data in the context of not only current events, but *recent* events. The conclusions we drew are only relevant if current suggests that it is.
 
-Sample bias
+**Sampling and representation biases**: ANES surveys may not necessarily reflect or generalize to the population of interest. This is especially the case with minority groups as they tend to over undersampled. One way to deal with this (as did ANES) is to intentionally oversample a particular minority group, but must weigh the responses appropriately in order to generalize to a population. While we try to avoid sweeping generalizations whenever possible, we still caution readers and other analysts to treat the data with a sense of caution. 
 
-Convenience bias
+**Convenience, voluntary and non-response response biases**: The study was mainly done online, which could affect the type of people who actually get recorded among the responses. There may be a percentage of the population that cannot or do not know how to use a computer, for example. Some many choose not to do it or leave certain questions blank. Respondents were also paid in some way for their responses, which could have an influence on the subset that is being sampled as well. This is not something that our analysis accounted for, but again, we remind readers and analysts to proceed with caution.
 
-Response bias
+**Measurement error and missing data**: Some data entries may be incorrect or even missing entirely, and it is up to the data scientist to decide how it should be handled. They could choose to omit that particular row from the analysis or try to seek out the correct information if they have the means to do so. There is no way for us to verify the accuracy of this data, we would like to acknowledge that missing data was omitted for our analysis. 
